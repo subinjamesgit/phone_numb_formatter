@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phone Number Formatter</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f9fb; }
+        h1 { color: #111; letter-spacing: 1px; margin-bottom: 24px; }
+        h2 { color: #111; margin-top: 32px; margin-bottom: 18px; }
+        h3 { color: #111; margin-bottom: 10px; margin-top: 18px; }
+        label { font-weight: 500; color: #111; margin-bottom: 8px; display: inline-block; }
+        form { margin-bottom: 32px; }
+        textarea { width: 100%; height: 150px; border-radius: 6px; border: 1px solid #b0c4de; padding: 12px; font-size: 15px; margin-bottom: 10px; }
+        .output { margin-top: 40px; }
+        .output > div { background: #f1f5fa; border-radius: 8px; padding: 22px 18px 16px 18px; margin-bottom: 24px; }
+        .output textarea { height: 120px; width: 220px; margin-bottom: 12px; }
+        .output table { margin-top: 36px; }
+        table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px #e3e8ee; }
+        th, td { border: 1px solid #e3e8ee; padding: 14px 12px; text-align: left; font-size: 15px; }
+        th { background: #eaf1fb; }
+        button {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 22px;
+            font-size: 15px;
+            margin: 6px 10px 6px 0;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 6px #e3e8ee;
+        }
+        button:hover {
+            background: #1746a2;
+            box-shadow: 0 4px 12px #c7d2fe;
+        }
+        #inputCount { font-weight: bold; color: #2563eb; }
+        .output span[id^='copyMsg'] { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>Bulk Phone Number Formatter</h1>
+    <form method="post">
+        <label for="numbers">Enter phone numbers (one per line or comma-separated):</label><br>
+        <textarea name="numbers" id="numbers" placeholder="e.g. 9876543210, +1 234-567-8901">{% if input_numbers %}{% for num in input_numbers %}{{ num }}
+{% endfor %}{% endif %}</textarea><br>
+        <span>Count: <span id="inputCount">{{ input_numbers|length if input_numbers else 0 }}</span></span><br><br>
+        <button type="submit">Format Numbers</button>
+        <button type="button" onclick="clearInput()">Clear</button>
+    </form>
+    {% if formatted_numbers %}
+    <div class="output">
+        <h2>Formatted Numbers</h2>
+        <div style="display:flex;gap:40px;">
+            <div>
+                <h3>Excel-Compatible <span style="font-size:small;">(for Excel/Sheets)</span></h3>
+                <button onclick="copyColumn('excel')">Copy All</button>
+                <span id="copyMsgExcel" style="color:green;display:none;margin-left:10px;">Copied!</span>
+                <br>
+                <span>Count: {{ formatted_numbers|length }}</span>
+                <br><br>
+                <textarea id="excelList" readonly style="width:220px;height:120px;">{% for excel, normal in formatted_numbers %}{{ excel }}
+{% endfor %}</textarea>
+            </div>
+            <div>
+                <h3>Normal Format</h3>
+                <button onclick="copyColumn('normal')">Copy All</button>
+                <span id="copyMsgNormal" style="color:green;display:none;margin-left:10px;">Copied!</span>
+                <br>
+                <span>Count: {{ formatted_numbers|length }}</span>
+                <br><br>
+                <textarea id="normalList" readonly style="width:220px;height:120px;">{% for excel, normal in formatted_numbers %}{{ normal }}
+{% endfor %}</textarea>
+            </div>
+        </div>
+        <table style="margin-top:30px;">
+            <tr><th>Excel-Compatible</th><th>Normal Format</th></tr>
+            {% for excel, normal in formatted_numbers %}
+            <tr><td>{{ excel }}</td><td>{{ normal }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+    function copyColumn(type) {
+        var textarea = document.getElementById(type === 'excel' ? 'excelList' : 'normalList');
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(textarea.value)
+                .then(function() { showCopyMsg(type); alert('Results copied to clipboard!'); })
+                .catch(function() { fallbackCopy(textarea, type); });
+        } else {
+            fallbackCopy(textarea, type);
+        }
+    }
+    function fallbackCopy(textarea, type) {
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        showCopyMsg(type);
+        alert('Results copied to clipboard!');
+    }
+    function showCopyMsg(type) {
+        var msg = document.getElementById(type === 'excel' ? 'copyMsgExcel' : 'copyMsgNormal');
+        msg.style.display = 'inline';
+        setTimeout(function() { msg.style.display = 'none'; }, 1500);
+    }
+    function clearInput() {
+        document.getElementById('numbers').value = '';
+        document.getElementById('inputCount').innerText = '0';
+    }
+    </script>
+    {% endif %}
+</body>
+</html> 

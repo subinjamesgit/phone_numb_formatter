@@ -24,6 +24,10 @@ def format_phone_number(raw_number):
         pass  # handled in next step
     else:
         cleaned = cleaned.lstrip('0')
+    # Step 2.6: Remove one or more zeros after a leading plus sign
+    if cleaned.startswith('+0'):
+        # Remove all zeros after the plus
+        cleaned = '+' + cleaned.lstrip('+0')
     print(f"RAW: {repr(raw_number)} CLEANED: {repr(cleaned)}")
     # Step 3: Handle mixed alphabets (invalid)
     if re.search(r'[a-zA-Z]', cleaned):

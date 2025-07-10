@@ -30,7 +30,15 @@ def format_phone_number(raw_number):
         cleaned = ''  # Will fall through to final fallback
     # Step 4: Handle double prefix (e.g., +910...)
     if cleaned.startswith('+91') and len(cleaned) > 13 and cleaned[3] == '0':
-        cleaned = '+91' + cleaned[4:]
+        # Remove all leading zeros after +91
+        rest = cleaned[3:]
+        rest = rest.lstrip('0')
+        cleaned = '+91' + rest
+    # Step 4.5: Handle numbers like '+0...' (should be +91...)
+    if cleaned.startswith('+0') and len(cleaned) == 12:
+        digits = cleaned.lstrip('+0')
+        if len(digits) == 10:
+            return f"'+91{digits}'"
     # Step 5: If starts with '00', replace with '+' and validate as international
     if cleaned.startswith('00'):
         plus_number = '+' + cleaned[2:]
@@ -61,7 +69,7 @@ def format_phone_number(raw_number):
             pass
         # Fallback: always runs if not valid
         digits_no_plus = re.sub(r'\D', '', cleaned.lstrip('+'))
-        if len(digits_no_plus) == 10:
+        if len(digits_no_plus) == 10 and digits_no_plus[0] in '7896':
             return f"'+91{digits_no_plus}'"
     # Step 7: If starts with '91' and 12 digits, add '+'
     if cleaned.startswith('91') and len(cleaned) == 12:
@@ -79,7 +87,7 @@ def format_phone_number(raw_number):
     # Step 9: If starts with 7/8/9/6 and 10 digits, add +91
     if len(cleaned) == 10 and cleaned[0] in '7896':
         return f"'+91{cleaned}'"
-    # Step 11: If more than 10 digits and no '+', try to match as international
+    # Step 10: If more than 10 digits and no '+', try to match as international
     digits_only = re.sub(r'\D', '', cleaned)
     if len(digits_only) > 10 and not cleaned.startswith('+'):
         try:

@@ -35,9 +35,9 @@ def format_phone_number(raw_number):
         rest = rest.lstrip('0')
         cleaned = '+91' + rest
     # Step 4.5: Handle numbers like '+0...' (should be +91...)
-    if cleaned.startswith('+0') and len(cleaned) == 12:
+    if cleaned.startswith('+0'):
         digits = cleaned.lstrip('+0')
-        if len(digits) == 10:
+        if len(digits) == 10 and digits[0] in '7896':
             return f"'+91{digits}'"
     # Step 5: If starts with '00', replace with '+' and validate as international
     if cleaned.startswith('00'):

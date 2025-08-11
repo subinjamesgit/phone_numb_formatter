@@ -15,6 +15,9 @@ def extract_digits_from_url(raw):
 def format_phone_number(raw_number):
     print(f"INPUT: {repr(raw_number)}")
     original = raw_number.strip()
+    # Step 0: Remove leading 'p:' prefix if present
+    if original.startswith('p:'):
+        original = original[2:].lstrip()
     # Step 1: Extract from WhatsApp/URL if present
     raw = extract_digits_from_url(original)
     # Step 2: Remove all noise (spaces, hyphens, brackets, periods, slashes, etc.)
